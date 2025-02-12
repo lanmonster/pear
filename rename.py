@@ -29,7 +29,7 @@ for dir in os.listdir(pdir):
                   os.path.join("plugin",new_name + ".lua"))
         print_colored("Renamed files under plugin folder successed", Colors.GREEN)
     if dir == 'doc':
-        os.rename(os.path.join("doc", "nvim-plugin-template.txt"),
+        os.rename(os.path.join("doc", "nvim-plugin-template.nvim.txt"),
                   os.path.join("doc",new_name + ".txt"))
         print_colored("Renamed files under doc folder successed", Colors.GREEN)
     if dir == '.github':
