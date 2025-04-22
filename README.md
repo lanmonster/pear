@@ -1,6 +1,11 @@
 # pear.nvim
 Easily switch file pairs for instance c++ and h++. 
 
+<p align="center">
+  <img src="pear.png" alt="Alt text" width="100"/>
+</p>
+
+
 ## Install
 
 ```lua
