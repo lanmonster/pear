@@ -1,6 +1,5 @@
 # pear.nvim
-
-Easily switch between two file pairs
+Easily switch file pairs for instance c++ and h++. 
 
 ## Install
 
