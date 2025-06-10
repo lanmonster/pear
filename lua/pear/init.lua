@@ -1,34 +1,57 @@
 local M = {}
+local options = {}
+M.setup = function(opts)
+  opts = opts or {}
+  opts.pears = opts.pears or {}
+  opts.open_in = opts.open_in or 'place'
+  options = opts
+end
+M.create_pear = function(desired_ext, gen_target_basename)
+  return function(filename, ext)
+    if ext ~= desired_ext then
+      return nil
+    end
+    return gen_target_basename(filename)
+  end
+end
+
+local float_window = function(text)
+  local width = math.floor(vim.o.columns * 0.8)
+  local height = math.floor(vim.o.lines * 0.8)
+  local col = math.floor((vim.o.columns - width) / 2)
+  local row = math.floor((vim.o.lines - height) / 2)
+  local buf = vim.api.nvim_create_buf(false, true)
+  vim.api.nvim_buf_set_lines(buf, 0, 0, false, vim.split(text, '\n'))
+  local win_config = {
+    relative = 'editor',
+    width = width,
+    height = height,
+    col = col,
+    row = row,
+    style = 'minimal',
+    border = 'rounded',
+  }
+
+  local win = vim.api.nvim_open_win(buf, true, win_config)
+  return buf, win
+end
 
 M.jump_pair = function()
-    local ext = vim.fn.expand("%:e")
-
-    local source_exts = { "cpp", "c", "frag", "server.ts", "js", "ts", "jsx", "tsx", "py", "java", "rs", "go", "css",
-        "scss", "less" }
-
-    local header_exts = { "h", "hpp", "hh", "vert", "svelte", "html", "vue", "component.ts", "component.js", "types.ts",
-        "interface.ts", "d.ts", "test.py", "spec.ts", "spec.js", "test.js", "test.ts" }
-
-    local target_exts = nil
-    if vim.tbl_contains(header_exts, ext) then
-        target_exts = source_exts
-    elseif vim.tbl_contains(source_exts, ext) then
-        target_exts = header_exts
-    else
-        print("Not a recognized file pair.")
-        return
+  local ext = vim.fn.expand('%:e')
+  local filename = vim.fn.expand('%:t')
+  for _, pear in ipairs(options.pears) do
+    local target = pear(filename, ext)
+    if target == nil then
+      goto continue
     end
-
-    local base_name = vim.fn.expand("%:r")
-    for _, target_ext in ipairs(target_exts) do
-        local target_file = base_name .. "." .. target_ext
-        if vim.fn.filereadable(target_file) == 1 then
-            vim.cmd("edit " .. target_file)
-            return
-        end
+    local path = vim.fn.findfile(target, vim.fn.expand('%:h'))
+    if path ~= '' then
+      vim.cmd('edit ' .. path)
+      return
     end
-
-    print("Corresponding file not found.")
+    ::continue::
+  end
+  print('No matching pair for ' .. filename)
 end
 
 return M
